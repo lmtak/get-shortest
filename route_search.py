@@ -3,7 +3,7 @@ import route_const
 # 駅の隣駅名と距離を保持
 __nodes = {}
 # コンソールに結果を出力したいとき True
-__print_verbose = False
+__print_verbose = True
 __print_sql = False
 
 # // preperation // 
@@ -133,9 +133,9 @@ def __search_shinkansen_path(results):
         # name: 始端駅, result: (連想配列)
         for (station, detail) in result.items():
             # station: 終端駅, detail: (連想配列)
-            dist = detail['dist']
-            route = detail['route']
-            way = detail['way']
+            dist  = detail['dist']  # integer
+            route = detail['route'] # set
+            way   = detail['way']   # list
 
             if dist <= 1000:
                 # 営業キロが 100.0 km 以下の場合は、標準出力に書き出さない
@@ -150,6 +150,9 @@ def __search_shinkansen_path(results):
                 edge = (name, station)
                 if edge not in edges:
                     if __print_verbose:
+                        if way[-1] == station:
+                            # 経由駅に終端駅が含まれているときは経由に表示しない
+                            del way[-1]
                         way_str = ' '.join(way)
                         if __print_sql:
                             print(f"insert into result(station_from, via, distance, station_to) values ('{name}', '{way_str}', '{dist}', '{station}');")
